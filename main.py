@@ -1,5 +1,11 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
+import re
+
+STOP_WORDS = {
+    "a", "an", "the", "and", "or", "with", "for",
+    "to", "in", "of", "i", "have", "looking"
+}
 
 app = FastAPI()
 
@@ -7,9 +13,11 @@ class AnalyzeRequest(BaseModel):
     cv_text: str
     job_description: str
 
-
 def extract_keywords(text: str):
-    return set(text.lower().split())
+    # remove punctuation
+    text = re.sub(r"[^\w\s#+.]", "", text.lower())
+    words = set(text.split())
+    return words - STOP_WORDS
 
 @app.get("/")
 def read_root():
